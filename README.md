@@ -246,4 +246,4 @@ docker exec rate_limiter_redis redis-cli monitor
 
 <br>
 
-**Desenvolvido com ❤️ em Go para dominar rate limiting e sistemas distribuídos**
+**Desenvolvido com ❤️ em Go para aprendizado de rate limiting**
