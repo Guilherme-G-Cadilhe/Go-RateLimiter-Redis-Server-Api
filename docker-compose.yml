@@ -1,0 +1,54 @@
+services:
+  # Serviço do Redis - nosso cache/storage
+  redis:
+    image: redis:7-alpine
+    container_name: rate_limiter_redis
+    ports:
+      - "6379:6379" # Expõe porta para desenvolvimento local
+    command: redis-server --appendonly yes # Habilita persistência
+    volumes:
+      - redis_data:/data # Volume para persistir dados
+    networks:
+      - rate_limiter_network
+    healthcheck:
+      # Verifica se Redis está funcionando
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Nossa aplicação Go
+  rate_limiter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rate_limiter_app
+    ports:
+      - "8080:8080" # Porta obrigatória do projeto
+    environment:
+      # Sobrescreve variáveis do .env para ambiente Docker
+      - REDIS_HOST=redis # Nome do serviço Redis
+      - REDIS_PORT=6379
+      - SERVER_PORT=8080
+      # Rate limits (pode ajustar para testes)
+      - RATE_LIMIT_IP_RPS=5
+      - RATE_LIMIT_IP_BLOCK_TIME=300s
+      - RATE_LIMIT_TOKEN_RPS=100
+      - RATE_LIMIT_TOKEN_BLOCK_TIME=600s
+    depends_on:
+      redis:
+        condition: service_healthy # Aguarda Redis estar pronto
+    networks:
+      - rate_limiter_network
+    restart: unless-stopped # Reinicia automaticamente se crashar
+
+# Volumes para persistência
+volumes:
+  redis_data:
+    driver: local
+
+# Rede isolada para os serviços se comunicarem
+networks:
+  rate_limiter_network:
+    driver: bridge
