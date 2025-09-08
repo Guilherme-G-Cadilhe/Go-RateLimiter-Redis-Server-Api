@@ -243,4 +243,7 @@ docker exec rate_limiter_redis redis-cli monitor
 - **Configuração flexível** com Viper (.env + environment vars)
 - **Testes de integração** com Redis real
 - **IP extraction** considerando proxies e load balancers
-  **Desenvolvido com ❤️ em Go para dominar rate limiting e sistemas distribuídos**
+
+<br>
+
+**Desenvolvido com ❤️ em Go para dominar rate limiting e sistemas distribuídos**
